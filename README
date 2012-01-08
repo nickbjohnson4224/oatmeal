@@ -1,0 +1,30 @@
+oatmeal - relational data processing pipeline utility
+
+oat SCRIPT
+oat [OPTIONS] -e SCRIPT
+
+OPTIONS
+
+-a
+  Append script output to source table before output. Script output and
+  source table must have the same number of rows.
+
+-t TABLE ...
+  Only apply operation to the given list of tables in the cluster.
+
+-p COLUMN ...
+  Project only the given list of columns to the script.
+
+-l FILE
+  Load input cluster from FILE instead of standard input.
+
+-w FILE
+  Write a copy of the output cluster to FILE as well as standard output.
+
+-r COLUMN ...
+  Rename the columns of the script output schema to the given list of
+  columns. The number of given columns must match the number of columns in
+  the script output schema.
+
+-o COLUMN ...
+  Project only the given list of columns in the output.

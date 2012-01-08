@@ -29,7 +29,6 @@ static bool matches_list(char **list, const char *string);
  * oatmeal - relational data processing pipeline utility
  *
  * oat SCRIPT
- * oat -b FILE
  * oat [OPTIONS] -e SCRIPT
  *
  * OPTIONS

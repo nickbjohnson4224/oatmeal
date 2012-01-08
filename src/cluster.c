@@ -84,6 +84,7 @@ struct cluster *cluster_load(FILE *stream) {
 			cluster->table = malloc(sizeof(void*));
 			cluster->name  = malloc(sizeof(void*));
 			cluster->table[0] = table;
+			cluster->name[0] = name;
 		}
 
 	}
