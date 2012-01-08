@@ -24,6 +24,7 @@
 
 struct table *run_script(char **script, struct table *input) {
 	struct table *output;
+	char buffer[100];
 	int ipipe[2];
 	int opipe[2];
 	pid_t child;
@@ -61,7 +62,14 @@ struct table *run_script(char **script, struct table *input) {
 		close(ipipe[0]);
 		close(opipe[1]);
 
-		execvp(script[0], script);
+		if (script[0][0] == '/') {
+			execvp(script[0], script);
+		}
+		else {
+			strncpy(buffer, "./", 100);
+			strncat(buffer, script[0], 100);
+			execvp(buffer, script);
+		}
 
 		return NULL;
 	}

@@ -1,4 +1,4 @@
-SOURCES = main.o line.o script.o table.o cluster.o
+SOURCES = src/main.o src/line.o src/script.o src/table.o src/cluster.o
 
 all: oat
 
@@ -12,8 +12,8 @@ oat: $(SOURCES)
 
 .PHONY: all
 
-main.o: oatmeal.h
-line.o: oatmeal.h
-script.o: oatmeal.h
-table.o: oatmeal.h
-cluster.o: oatmeal.h
+src/main.o: src/oatmeal.h
+src/line.o: src/oatmeal.h
+src/script.o: src/oatmeal.h
+src/table.o: src/oatmeal.h
+src/cluster.o: src/oatmeal.h

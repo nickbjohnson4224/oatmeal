@@ -26,7 +26,7 @@
 static bool matches_list(char **list, const char *string);
 
 /*****************************************************************************
- * oatmeal - relational data processing pipeline
+ * oatmeal - relational data processing pipeline utility
  *
  * oat SCRIPT
  * oat -b FILE
@@ -54,8 +54,11 @@ static bool matches_list(char **list, const char *string);
  * -p COLUMN ...
  *   Project only the given list of columns to the script.
  *
+ * -l FILE
+ *   Load input cluster from FILE instead of standard input.
+ *
  * -w FILE
- *   Write a copy of the output cluster to FILE.
+ *   Write a copy of the output cluster to FILE as well as standard output.
  *
  * -r COLUMN ...
  *   Rename the columns of the script output schema to the given list of
@@ -101,6 +104,11 @@ int main(int argc, char **argv) {
 	bool w_flag = false;
 	char *write_filename = NULL;
 	FILE *wfile = NULL;
+
+	/* load argument */
+	bool l_flag = false;
+	char *load_filename = NULL;
+	FILE *lfile = NULL;
 
 	size_t i, j;
 
@@ -203,6 +211,14 @@ int main(int argc, char **argv) {
 				i += 2;
 				break;
 
+			case 'l': /* load option */
+				l_flag = true;
+
+				load_filename = argv[i+1];
+
+				i += 2;
+				break;
+
 			default: /* unknown option */
 				fprintf(stderr, "%s: unhandled option %s\n", argv[0], argv[i]);
 				return 1;
@@ -210,8 +226,16 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	/* read cluster from stdin */
-	cluster = cluster_load(stdin);
+	if (l_flag) {
+		/* read cluster from file */
+		lfile = fopen(load_filename, "r");
+		cluster = cluster_load(lfile);
+		fclose(lfile);
+	}
+	else {
+		/* read cluster from stdin */
+		cluster = cluster_load(stdin);
+	}
 
 	if (!cluster) {
 		fprintf(stderr, "%s: cluster load error from standard input\n", argv[0]);
