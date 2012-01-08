@@ -53,6 +53,7 @@ int           table_save(FILE *stream, struct table *t);
 void          table_free(struct table *t);
 
 struct table *table_append(struct table *t, struct table *t2);
+struct table *table_rename(struct table *t, char **schema);
 
 /* cluster operations *******************************************************/
 
@@ -72,5 +73,12 @@ void unload_line(FILE *stream, char **line, int length);
 char **load_line(FILE *stream, int *length);
 void   save_line(FILE *stream, char **line, int length);
 void   free_line(char **line, int length);
+
+void   line_reset(void);
+
+/* script execution *********************************************************/
+
+struct table   *run_script (char **script, struct table *input);
+struct cluster *run_cscript(char **script, struct cluster *input);
 
 #endif/*__OATMEAL_H*/

@@ -34,6 +34,10 @@ struct line_revbuf_list {
 
 static struct line_revbuf_list *_list = NULL;
 
+void line_reset(void) {
+	_list = NULL;
+}
+
 void unload_line(FILE *stream, char **line, int length) {
 	struct line_revbuf_list *l;
 	struct line_revbuf *r;
@@ -137,9 +141,9 @@ void save_line(FILE *stream, char **line, int length) {
 	int i;
 
 	for (i = 0; i < length - 1; i++) {
-		printf("%s\t", line[i]);
+		fprintf(stream, "%s\t", line[i]);
 	}
-	printf("%s\n", line[length - 1]);
+	fprintf(stream, "%s\n", line[length - 1]);
 }
 
 void free_line(char **line, int length) {

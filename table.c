@@ -82,7 +82,7 @@ struct table *table_proj(struct table *table, char **proj) {
 		}
 		
 		if (projmap[i] == -1) {
-			fprintf(stderr, "projection underflow\n");
+			fprintf(stderr, "error: projection: column \"%s\" not found\n", proj[i]);
 			return NULL;
 		}
 	}
@@ -90,9 +90,13 @@ struct table *table_proj(struct table *table, char **proj) {
 	table1 = malloc(sizeof(struct table));
 	table1->rows = table->rows;
 	table1->cols = length;
-	table1->schema = proj;
+	table1->schema = malloc(sizeof(char*) * length);
 	table1->data = malloc(sizeof(char**) * table->rows);
 	
+	for (i = 0; i < length; i++) {
+		table1->schema[i] = strdup(proj[i]);
+	}
+
 	for (i = 0; i < table->rows; i++) {
 		table1->data[i] = malloc(sizeof(char*) * length);
 		for (j = 0; j < length; j++) {
@@ -101,6 +105,23 @@ struct table *table_proj(struct table *table, char **proj) {
 	}
 
 	free(projmap);
+	return table1;
+}
+
+struct table *table_rename(struct table *table, char **schema) {
+	struct table *table1;
+	int length;
+	int i;
+
+	for (length = 0; schema[length]; length++);
+
+	table1 = table_copy(table);
+
+	for (i = 0; i < length && i < table1->cols; i++) {
+		free(table1->schema[i]);
+		table1->schema[i] = strdup(schema[i]);
+	}
+
 	return table1;
 }
 
@@ -158,7 +179,7 @@ struct table *table_append(struct table *table1, struct table *table2) {
 	int i, j;
 
 	if (table1->rows != table2->rows) {
-		fprintf(stderr, "error: table row dimension mismatch\n");
+		fprintf(stderr, "error: append: row dimension mismatch\n");
 		return NULL;
 	}
 

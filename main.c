@@ -41,10 +41,13 @@ static bool matches_list(char **list, const char *string);
  * -t TABLE ...
  *   Only apply operation to the given list of tables in the cluster.
  *
+ * TODO
  * -j [COUNT]
  *   Run up to COUNT parallel subprocesses (this does not cause splitting
- *   unless explicitly specified.)
+ *   unless explicitly specified.) If COUNT is not specified, the number
+ *   of parallel subprocesses is unlimited.
  *
+ * TODO
  * -c
  *   Give set of tables to the script in cluster format.
  *
@@ -89,6 +92,15 @@ int main(int argc, char **argv) {
 	/* output project argument */
 	bool o_flag = false;
 	char **oproj_schema = NULL;
+
+	/* rename argument */
+	bool r_flag = false;
+	char **rename_schema = NULL;
+
+	/* write argument */
+	bool w_flag = false;
+	char *write_filename = NULL;
+	FILE *wfile = NULL;
 
 	size_t i, j;
 
@@ -160,11 +172,35 @@ int main(int argc, char **argv) {
 				i += j + 1;
 				break;
 
+			case 'r': /* rename option */
+				r_flag = true;
+
+				/* allocate projection schema */
+				for (j = 0; argv[i+j+1] && argv[i+j+1][0] != '-'; j++);
+				rename_schema = malloc(sizeof(char*) * (j + 1));
+
+				/* create table list */
+				for (j = 0; argv[i+j+1] && argv[i+j+1][0] != '-'; j++) {
+					rename_schema[j] = argv[i+j+1];
+				}
+				rename_schema[j] = NULL;
+				
+				i += j + 1;
+				break;
+
 			case 'e': /* script execute option */
 				e_flag = true;
 				script_argv = &argv[i+1];
 
 				i = argc;
+				break;
+
+			case 'w': /* write option */
+				w_flag = true;
+
+				write_filename = argv[i+1];
+
+				i += 2;
 				break;
 
 			default: /* unknown option */
@@ -202,8 +238,19 @@ int main(int argc, char **argv) {
 				source = output;
 			}
 
-			/* TODO */
 			/* apply script */
+			if (e_flag) {
+				output = run_script(script_argv, source);
+				table_free(source);
+				source = output;
+			}
+
+			/* apply rename */
+			if (r_flag) {
+				output = table_rename(source, rename_schema);
+				table_free(source);
+				source = output;
+			}
 
 			/* apply append */
 			if (a_flag) {
@@ -227,6 +274,13 @@ int main(int argc, char **argv) {
 			/* save output table */
 			cluster->table[i] = output;
 		}
+	}
+
+	/* write cluster to file (optionally) */
+	if (w_flag) {
+		wfile = fopen(write_filename, "w");
+		cluster_save(wfile, cluster);
+		fclose(wfile);
 	}
 
 	/* write cluster to stdout */
